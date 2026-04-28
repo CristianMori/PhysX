@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Nvidia.OvPhysx</RootNamespace>
+    <AssemblyName>Nvidia.OvPhysx</AssemblyName>
+    <Version>0.3.7</Version>
+    <Description>C# wrapper for NVIDIA ovPhysX physics simulation library</Description>
+    <Authors>Cristian Mori</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Nvidia.OvPhysx.Tests" />
+  </ItemGroup>
+
+</Project>
