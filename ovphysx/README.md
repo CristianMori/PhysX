@@ -5,7 +5,7 @@
 [![Linux | Windows](https://img.shields.io/badge/platform-linux%20%7C%20windows-lightgrey)](https://pypi.org/project/ovphysx/)
 
 ovphysx is a self-contained library for USD-based physics simulation, offering
-a C API with Python bindings. It wraps NVIDIA PhysX and Omni PhysX,
+a C API with Python and C# bindings. It wraps NVIDIA PhysX and Omni PhysX,
 loads USD scenes, runs simulation, and exchanges data via DLPack tensors —
 no Omniverse installation required.
 
@@ -73,6 +73,37 @@ cmake --build build
 The SDK includes ready-to-build samples in `samples/c_samples/` covering core
 workflows (hello world, tensor bindings, cloning, contacts, OmniPVD recording).
 Each sample has its own `CMakeLists.txt` that uses `find_package(ovphysx)`.
+
+## C# / .NET
+
+A .NET 8 wrapper is available for integrating ovphysx into C# applications:
+
+```csharp
+using Nvidia.OvPhysx;
+
+using var physx = new PhysX();
+physx.AddUsd("scene.usda");
+physx.WaitAll();
+physx.StepSync(1.0f / 60.0f, 0.0f);
+```
+
+The C# wrapper supports the full API surface: instance management, USD loading, simulation stepping, DLPack tensor bindings, contact bindings, scene queries, and articulation metadata.
+
+See the [C# wrapper README](csharp/Nvidia.OvPhysx/README.md) for setup instructions and API reference.
+
+### Running C# tests
+
+```bash
+cd ovphysx/csharp/Nvidia.OvPhysx.Tests
+dotnet test
+```
+
+67 unit tests validate struct layouts, enum values, string marshaling, and the public API surface — all without the native library.
+
+### C# samples
+
+- [`tests/csharp_samples/hello_world/`](tests/csharp_samples/hello_world/) — Create instance, load USD, step simulation
+- [`tests/csharp_samples/tensor_bindings/`](tests/csharp_samples/tensor_bindings/) — DLPack tensor exchange: write DOF targets, read link poses
 
 ## Documentation
 

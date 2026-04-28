@@ -37,7 +37,7 @@ This repo contains:
 
 | Directory | Description |
 |---|---|
-| [`ovphysx/`](ovphysx/) | ovphysx — C API with Python bindings for USD physics simulation with DLPack tensor interop (`pip install ovphysx`) |
+| [`ovphysx/`](ovphysx/) | ovphysx — C API with Python and C# bindings for USD physics simulation with DLPack tensor interop (`pip install ovphysx`) |
 | [`physx/`](physx/) | PhysX SDK — real-time physics simulation engine |
 | [`omni/`](omni/) | Omniverse PhysX extensions for Kit-based applications |
 
@@ -47,6 +47,11 @@ Additional simulation libraries:
 |---|---|
 | [`blast/`](blast/) | Blast SDK — destruction and fracture simulation |
 | [`flow/`](flow/) | Flow SDK — fluid and fire simulation |
+
+## Authors and acknowledgment
+NVIDIA Corporation
+
+C# wrapper and examples by Cristian Mori (cristian.mori@gmail.com)
 
 ## Support
 
