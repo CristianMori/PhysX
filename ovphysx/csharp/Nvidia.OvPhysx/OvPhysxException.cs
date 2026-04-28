@@ -5,8 +5,13 @@ using Nvidia.OvPhysx.Interop;
 
 namespace Nvidia.OvPhysx;
 
+/// <summary>
+/// Exception thrown when an ovPhysX API call fails.
+/// Contains the <see cref="Status"/> code from the native API.
+/// </summary>
 public class OvPhysxException : Exception
 {
+    /// <summary>The API status code that caused this exception.</summary>
     public ApiStatus Status { get; }
 
     public OvPhysxException(string message, ApiStatus status = ApiStatus.Error) : base(message)
