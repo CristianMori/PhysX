@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Nvidia.OvPhysx.Tests/Nvidia.OvPhysx.Tests.csproj" />
+  <Project Path="Nvidia.OvPhysx/Nvidia.OvPhysx.csproj" />
+</Solution>

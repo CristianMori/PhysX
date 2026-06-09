@@ -1,0 +1,12 @@
+# .NET build artifacts
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+.vs/
+
+# NuGet output
+*.nupkg
+*.snupkg
