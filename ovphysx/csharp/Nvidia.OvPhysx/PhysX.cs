@@ -97,11 +97,15 @@ public sealed partial class PhysX : IDisposable
     }
 
     /// <summary>
-    /// Clones a USD prim hierarchy to one or more target paths (asynchronous).
+    /// Clones a USD prim hierarchy to one or more target paths (asynchronous). The source prim
+    /// must already exist; targets must be unique and must not equal the source. Because operations
+    /// are stream-ordered, subsequent calls automatically observe the clones.
     /// </summary>
     /// <param name="parentTransforms">
-    /// Optional flat array of 7 floats per target — <c>(px, py, pz, qx, qy, qz, qw)</c> world poses.
-    /// When provided, its length must equal <c>targetPaths.Count * 7</c>.
+    /// Optional flat array of 7 floats per target — <c>(px, py, pz, qx, qy, qz, qw)</c>: position
+    /// followed by an <b>xyzw</b> (imaginary-first) quaternion, matching the tensor pose convention.
+    /// Identity rotation is <c>(0, 0, 0, 1)</c>. When provided, its length must equal
+    /// <c>targetPaths.Count * 7</c>; pass <see langword="null"/> to place all parents at identity.
     /// </param>
     public unsafe Operation Clone(string sourcePath, IReadOnlyList<string> targetPaths, float[]? parentTransforms = null)
     {
@@ -110,6 +114,8 @@ public sealed partial class PhysX : IDisposable
         ArgumentNullException.ThrowIfNull(targetPaths);
         if (targetPaths.Count == 0)
             throw new ArgumentException("At least one target path is required.", nameof(targetPaths));
+        if (targetPaths.Contains(sourcePath))
+            throw new ArgumentException("A target path cannot equal the source path.", nameof(targetPaths));
         if (parentTransforms is not null && parentTransforms.Length != targetPaths.Count * 7)
             throw new ArgumentException(
                 $"parentTransforms must contain 7 floats per target ({targetPaths.Count * 7} total), got {parentTransforms.Length}.",

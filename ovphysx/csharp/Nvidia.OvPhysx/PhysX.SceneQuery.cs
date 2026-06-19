@@ -9,7 +9,13 @@ namespace Nvidia.OvPhysx;
 
 public sealed partial class PhysX
 {
-    /// <summary>Casts a ray and returns the matching hits.</summary>
+    /// <summary>
+    /// Casts a ray and returns the matching hits.
+    /// </summary>
+    /// <param name="direction">Ray direction (should be normalized).</param>
+    /// <param name="distance">Maximum ray length (&gt;= 0).</param>
+    /// <param name="mode">Hit selection. <see cref="SceneQueryMode.Any"/> zeroes hit location fields.</param>
+    /// <param name="bothSides">When true, tests both sides of mesh triangles.</param>
     public unsafe SceneQueryHit[] Raycast(
         Vector3 origin, Vector3 direction, float distance,
         SceneQueryMode mode = SceneQueryMode.Closest, bool bothSides = false)
@@ -26,7 +32,12 @@ public sealed partial class PhysX
         return CopyHits(hits, count);
     }
 
-    /// <summary>Sweeps geometry along a direction and returns the matching hits.</summary>
+    /// <summary>
+    /// Sweeps geometry along a direction and returns the matching hits.
+    /// </summary>
+    /// <param name="direction">Sweep direction (should be normalized).</param>
+    /// <param name="distance">Maximum sweep distance (&gt;= 0).</param>
+    /// <param name="bothSides">When true, tests both sides of mesh triangles.</param>
     public unsafe SceneQueryHit[] Sweep(
         SceneQueryGeometry geometry, Vector3 direction, float distance,
         SceneQueryMode mode = SceneQueryMode.Closest, bool bothSides = false)
@@ -54,7 +65,11 @@ public sealed partial class PhysX
         }
     }
 
-    /// <summary>Returns objects whose geometry overlaps the query geometry (location fields are zeroed).</summary>
+    /// <summary>
+    /// Returns objects whose geometry overlaps the query geometry. Only object-identity fields are
+    /// populated; location fields (normal, position, distance, face index, material) are zeroed.
+    /// <see cref="SceneQueryMode.Closest"/> is treated as <see cref="SceneQueryMode.All"/>.
+    /// </summary>
     public unsafe SceneQueryHit[] Overlap(SceneQueryGeometry geometry, SceneQueryMode mode = SceneQueryMode.All)
     {
         EnsureValid();

@@ -16,6 +16,10 @@ var timeout = TimeSpan.FromSeconds(10);
 try
 {
     Console.WriteLine($"ovphysx native version: {OvPhysxLibrary.GetVersion()}");
+
+    // Quiet the native USD/Carbonite diagnostic logging so sample output is readable.
+    Logging.EnableDefaultOutput(false);
+    Logging.Level = LogLevel.Error;
     switch (sample)
     {
         case "hello": HelloWorld(); break;
@@ -23,8 +27,15 @@ try
         case "tensors": Tensors(); break;
         case "contacts": Contacts(); break;
         case "query": Query(); break;
+        case "sweep": Sweep(); break;
+        case "overlap": Overlap(); break;
+        case "dofcontrol": DofControl(); break;
+        case "report": Report(); break;
+        case "lifecycle": Lifecycle(); break;
         default:
-            Console.Error.WriteLine($"Unknown sample '{sample}'. Use: hello | clone | tensors | contacts | query");
+            Console.Error.WriteLine(
+                $"Unknown sample '{sample}'. Use: hello | clone | tensors | contacts | query | " +
+                "sweep | overlap | dofcontrol | report | lifecycle");
             return 2;
     }
     return 0;
@@ -141,7 +152,7 @@ void Contacts()
 
 void Query()
 {
-    Console.WriteLine("=== scene query ===");
+    Console.WriteLine("=== scene query: raycast ===");
     using var physx = new PhysX(device: DeviceType.Cpu);
 
     physx.AddUsd(SampleData.Path("simple_physics_scene.usda")).Operation.Wait(timeout);
@@ -156,4 +167,130 @@ void Query()
     Console.WriteLine($"  Raycast hits: {hits.Length}");
     foreach (SceneQueryHit h in hits)
         Console.WriteLine($"    dist={h.Distance:F3} pos=({h.Position.X:F2}, {h.Position.Y:F2}, {h.Position.Z:F2}) normal=({h.Normal.X:F2}, {h.Normal.Y:F2}, {h.Normal.Z:F2})");
+}
+
+void Sweep()
+{
+    Console.WriteLine("=== scene query: sweep (sphere) ===");
+    using var physx = new PhysX(device: DeviceType.Cpu);
+
+    physx.AddUsd(SampleData.Path("simple_physics_scene.usda")).Operation.Wait(timeout);
+    physx.StepSync(1f / 60f, 0f);
+
+    SceneQueryHit[] hits = physx.Sweep(
+        SceneQueryGeometry.Sphere(radius: 0.5f, position: new Vector3(0, 100, 0)),
+        direction: new Vector3(0, -1, 0),
+        distance: 1000f,
+        mode: SceneQueryMode.All);
+
+    Console.WriteLine($"  Sweep hits: {hits.Length}");
+    foreach (SceneQueryHit h in hits)
+        Console.WriteLine($"    dist={h.Distance:F3} pos=({h.Position.X:F2}, {h.Position.Y:F2}, {h.Position.Z:F2})");
+}
+
+void Overlap()
+{
+    Console.WriteLine("=== scene query: overlap (box) ===");
+    using var physx = new PhysX(device: DeviceType.Cpu);
+
+    physx.AddUsd(SampleData.Path("simple_physics_scene.usda")).Operation.Wait(timeout);
+    physx.StepSync(1f / 60f, 0f);
+
+    // Overlap only reports object identity; location fields are zeroed.
+    SceneQueryHit[] hits = physx.Overlap(
+        SceneQueryGeometry.Box(
+            halfExtent: new Vector3(100, 100, 100),
+            position: Vector3.Zero,
+            rotation: Quaternion.Identity),
+        mode: SceneQueryMode.All);
+
+    Console.WriteLine($"  Overlapping objects: {hits.Length}");
+    foreach (SceneQueryHit h in hits)
+        Console.WriteLine($"    collision={h.Collision} rigidBody={h.RigidBody}");
+}
+
+void DofControl()
+{
+    Console.WriteLine("=== articulation DOF control (metadata, names, indexed/masked writes) ===");
+    using var physx = new PhysX(device: DeviceType.Cpu);
+
+    physx.AddUsd(SampleData.Path("links_chain_sample.usda")).Operation.Wait(timeout);
+
+    using var targets = physx.CreateTensorBinding(TensorType.ArticulationDofVelocityTarget, "/World/articulation");
+
+    Console.WriteLine($"  articulations={targets.Count}, fixedBase={targets.IsFixedBase}");
+    Console.WriteLine($"  metadata: dofs={targets.DofCount}, links={targets.BodyCount}, joints={targets.JointCount}");
+    Console.WriteLine($"  DOF names:   {string.Join(", ", targets.DofNames)}");
+    Console.WriteLine($"  body names:  {string.Join(", ", targets.BodyNames)}");
+    Console.WriteLine($"  joint names: {string.Join(", ", targets.JointNames)}");
+
+    // Full write: set every DOF velocity target to 10 rad/s.
+    var values = new float[targets.ElementCount];
+    Array.Fill(values, 10f);
+    targets.Write(values);
+    physx.StepSync(1f / 60f, 0f);
+    Console.WriteLine("  wrote full DOF velocity targets.");
+
+    // Indexed write: update only articulation row 0 (the chain holds a single articulation).
+    targets.Write(DlTensor.Cpu(values, targets.Count, targets.DofCount), indices: stackalloc int[] { 0 });
+    Console.WriteLine("  wrote DOF targets for indices [0].");
+
+    // Masked write: same selection via a per-articulation mask.
+    Span<byte> mask = stackalloc byte[(int)targets.Count];
+    mask[0] = 1;
+    targets.WriteMasked(DlTensor.Cpu(values, targets.Count, targets.DofCount), mask);
+    Console.WriteLine("  wrote DOF targets via mask [1].");
+}
+
+void Report()
+{
+    Console.WriteLine("=== contact report ===");
+    using var physx = new PhysX(device: DeviceType.Cpu);
+
+    physx.AddUsd(SampleData.Path("boxes_falling_on_groundplane.usda")).Operation.Wait(timeout);
+
+    for (int i = 0; i < 120; i++)
+        physx.StepSync(1f / 60f, i / 60f);
+
+    ContactReport report = physx.GetContactReport(includeFrictionAnchors: true);
+    Console.WriteLine($"  contact pairs (headers): {report.Headers.Count}");
+    Console.WriteLine($"  contact points:          {report.Points.Count}");
+    Console.WriteLine($"  friction anchors:        {report.Anchors.Count}");
+
+    foreach (ContactPoint p in report.Points.Take(3))
+        Console.WriteLine($"    point: pos=({p.Position.X:F2}, {p.Position.Y:F2}, {p.Position.Z:F2}) sep={p.Separation:F4} impulse=({p.Impulse.X:F2}, {p.Impulse.Y:F2}, {p.Impulse.Z:F2})");
+}
+
+void Lifecycle()
+{
+    Console.WriteLine("=== lifecycle: logging callback, reset, remove USD ===");
+
+    // Route native log messages into managed code. Real physics operations below
+    // generate the traffic (the test-message emitter bypasses registered callbacks).
+    int logCount = 0;
+    Logging.EnableDefaultOutput(false);
+    Logging.Level = LogLevel.Info;
+    Logging.RegisterCallback((level, message) =>
+    {
+        if (logCount < 3)
+            Console.WriteLine($"    [log {level}] {message.Trim()}");
+        logCount++;
+    });
+
+    using (var physx = new PhysX(device: DeviceType.Cpu))
+    {
+        var (usd, load) = physx.AddUsd(SampleData.Path("simple_physics_scene.usda"));
+        load.Wait(timeout);
+        physx.StepSync(1f / 60f, 0f);
+        Console.WriteLine($"  loaded USD (handle {usd.Value}), stage id {physx.GetStageId()}");
+
+        physx.RemoveUsd(usd).Wait(timeout);
+        Console.WriteLine("  removed USD layer.");
+
+        physx.Reset().Wait(timeout);
+        Console.WriteLine("  reset stage to empty.");
+    }
+
+    Logging.UnregisterCallback();
+    Console.WriteLine($"  received {logCount} native log message(s) via callback.");
 }

@@ -101,17 +101,21 @@ public static class NativeLibraryResolver
         string? libEnv = Environment.GetEnvironmentVariable(LibPathEnvVar);
         if (!string.IsNullOrEmpty(libEnv))
         {
-            // The native lib lives at <sdk_root>/lib/ovphysx.dll; add the lib dir itself
-            // plus any target-deps kit SDK directory next to it.
+            // Both the pip wheel and the GitHub Releases SDK lay the native library out as
+            // <root>/lib/ovphysx.dll with transitive deps in sibling folders (plugins/, bin/)
+            // and a kit SDK under target-deps/. Add the lib dir and the likely sibling dirs.
             string? libDir = Path.GetDirectoryName(libEnv);
             if (libDir is not null)
                 TryAddDllDirectory(libDir);
 
-            string? sdkRoot = Path.GetDirectoryName(libDir);
-            if (sdkRoot is not null)
+            string? root = Path.GetDirectoryName(libDir);
+            if (root is not null)
             {
+                TryAddDllDirectory(root);
+                TryAddDllDirectory(Path.Combine(root, "plugins"));
+                TryAddDllDirectory(Path.Combine(root, "bin"));
                 foreach (string cfg in (string[])["debug", "release", "checked"])
-                    TryAddDllDirectory(Path.Combine(sdkRoot, "target-deps", $"kit_sdk_{cfg}"));
+                    TryAddDllDirectory(Path.Combine(root, "target-deps", $"kit_sdk_{cfg}"));
             }
         }
     }
@@ -120,8 +124,18 @@ public static class NativeLibraryResolver
     {
         try
         {
-            if (Directory.Exists(dir))
-                AddDllDirectory(dir);
+            if (!Directory.Exists(dir))
+                return;
+
+            // AddDllDirectory covers loads that opt into the user-directory search; prepending to
+            // PATH is honoured universally by the OS loader when resolving transitive dependencies
+            // (carb.dll, USD runtime, etc. in plugins/). Use both for robustness.
+            AddDllDirectory(dir);
+
+            string path = Environment.GetEnvironmentVariable("PATH") ?? string.Empty;
+            string[] entries = path.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries);
+            if (!entries.Any(e => string.Equals(e.TrimEnd(Path.DirectorySeparatorChar), dir.TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase)))
+                Environment.SetEnvironmentVariable("PATH", dir + Path.PathSeparator + path);
         }
         catch
         {

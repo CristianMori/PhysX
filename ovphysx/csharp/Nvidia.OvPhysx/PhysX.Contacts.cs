@@ -49,7 +49,14 @@ public sealed partial class PhysX
             NativeMethods.ovphysx_get_contact_binding_spec(_handle, binding, &sensorCount, &filterCount),
             "get_contact_binding_spec");
 
-        return new ContactBinding(this, binding, sensorCount, filterCount, maxContactDataCount);
+        // The actual allocated capacity can differ from the requested value; use the native value
+        // (as the Python API does) so detailed contact/friction reads size their buffers correctly.
+        uint actualCapacity;
+        OvPhysxException.Check(
+            NativeMethods.ovphysx_get_contact_binding_capacity(_handle, binding, &actualCapacity),
+            "get_contact_binding_capacity");
+
+        return new ContactBinding(this, binding, sensorCount, filterCount, actualCapacity);
     }
 
     /// <summary>

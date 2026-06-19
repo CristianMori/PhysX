@@ -10,3 +10,6 @@ obj/
 # NuGet output
 *.nupkg
 *.snupkg
+
+# Local native runtime (never commit binaries)
+.native/

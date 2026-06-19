@@ -91,7 +91,11 @@ public sealed class TensorBinding : IDisposable
 
     // ----- Data access -----
 
-    /// <summary>Reads simulation state into <paramref name="tensor"/> (CPU or GPU, matching this binding's shape).</summary>
+    /// <summary>
+    /// Reads simulation state into <paramref name="tensor"/>. The tensor must be float32, match this
+    /// binding's element count, and live on a matching device (CPU or GPU). Layout conventions
+    /// (world frame, xyzw quaternions, joint-space DOFs) are documented on <see cref="OvPhysx.TensorType"/>.
+    /// </summary>
     public unsafe void Read(DlTensor tensor)
     {
         EnsureValid();
@@ -144,8 +148,9 @@ public sealed class TensorBinding : IDisposable
     }
 
     /// <summary>
-    /// Writes a subset of entities selected by <paramref name="indices"/> (int32 row indices).
-    /// <paramref name="source"/>'s first dimension must equal <c>indices.Length</c>.
+    /// Writes only the rows selected by <paramref name="indices"/> (int32 row indices, length K ≤ N).
+    /// <paramref name="source"/> must still be the full <c>[N, ...]</c> tensor; only the selected rows
+    /// are applied.
     /// </summary>
     public unsafe void Write(DlTensor source, ReadOnlySpan<int> indices)
     {
@@ -166,7 +171,8 @@ public sealed class TensorBinding : IDisposable
 
     /// <summary>
     /// Writes entities selected by a boolean <paramref name="mask"/> (uint8; non-zero = write).
-    /// The mask length must equal <see cref="Count"/>.
+    /// The mask length must equal <see cref="Count"/>. Masking is <b>write-only</b>: there is no
+    /// masked read — read the full tensor and index the result yourself.
     /// </summary>
     public unsafe void WriteMasked(DlTensor source, ReadOnlySpan<byte> mask)
     {
@@ -203,22 +209,22 @@ public sealed class TensorBinding : IDisposable
     }
 
     private unsafe string[] GetPrimPaths()
-        => GetStrings(&NativeMethods.ovphysx_tensor_binding_get_prim_paths, "tensor_binding_get_prim_paths");
+        => GetStrings(&NativeMethods.ovphysx_tensor_binding_get_prim_paths, "tensor_binding_get_prim_paths", (uint)Math.Max(0, Count));
 
     private unsafe string[] GetDofNames()
-        => GetStrings(&NativeMethods.ovphysx_articulation_get_dof_names, "articulation_get_dof_names");
+        => GetStrings(&NativeMethods.ovphysx_articulation_get_dof_names, "articulation_get_dof_names", (uint)Math.Max(0, Metadata.DofCount));
 
     private unsafe string[] GetBodyNames()
-        => GetStrings(&NativeMethods.ovphysx_articulation_get_body_names, "articulation_get_body_names");
+        => GetStrings(&NativeMethods.ovphysx_articulation_get_body_names, "articulation_get_body_names", (uint)Math.Max(0, Metadata.BodyCount));
 
     private unsafe string[] GetJointNames()
-        => GetStrings(&NativeMethods.ovphysx_articulation_get_joint_names, "articulation_get_joint_names");
+        => GetStrings(&NativeMethods.ovphysx_articulation_get_joint_names, "articulation_get_joint_names", (uint)Math.Max(0, Metadata.JointCount));
 
     private unsafe string[] GetStrings(
-        delegate*<ulong, ulong, ovphysx_string_t*, uint, uint*, ovphysx_result_t> fn, string ctx)
+        delegate*<ulong, ulong, ovphysx_string_t*, uint, uint*, ovphysx_result_t> fn, string ctx, uint capacityHint)
     {
         EnsureValid();
-        return Introspection.GetStrings(_physx.Handle, _handle, fn, ctx);
+        return Introspection.GetStrings(_physx.Handle, _handle, fn, ctx, capacityHint);
     }
 
     private void ValidateElementCount(long provided, string op)

@@ -182,13 +182,14 @@ public sealed class ContactBinding : IDisposable
     private unsafe string[] GetSensorPaths()
     {
         EnsureValid();
-        return Introspection.GetStrings(_physx.Handle, _handle, &NativeMethods.ovphysx_contact_binding_get_sensor_paths, "contact_binding_get_sensor_paths");
+        return Introspection.GetStrings(_physx.Handle, _handle, &NativeMethods.ovphysx_contact_binding_get_sensor_paths, "contact_binding_get_sensor_paths", (uint)Math.Max(0, SensorCount));
     }
 
     private unsafe string[][] GetFilterPaths()
     {
         EnsureValid();
-        string[] flat = Introspection.GetStrings(_physx.Handle, _handle, &NativeMethods.ovphysx_contact_binding_get_filter_paths, "contact_binding_get_filter_paths");
+        uint hint = (uint)Math.Max(0, SensorCount) * (uint)Math.Max(0, FilterCount);
+        string[] flat = Introspection.GetStrings(_physx.Handle, _handle, &NativeMethods.ovphysx_contact_binding_get_filter_paths, "contact_binding_get_filter_paths", hint);
 
         var result = new string[SensorCount][];
         if (FilterCount == 0 || flat.Length == 0)
