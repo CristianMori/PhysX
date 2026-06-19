@@ -1,3 +1,34 @@
+# ovphysx for C# / .NET — `Nvidia.OvPhysx`
+
+> ### 👉 This fork exists for one reason: a **C# / .NET 8 wrapper** for `ovphysx`.
+> If you came here for the C# bindings to NVIDIA Omni PhysX, **you are in the right place.**
+
+**`Nvidia.OvPhysx`** is an idiomatic .NET 8 wrapper over the native **ovphysx** (NVIDIA Omni PhysX)
+C API — USD-based physics simulation, DLPack tensor bindings, contact reporting, and scene queries
+via in-process P/Invoke. It mirrors the official Python `ovphysx` package with idiomatic C#
+ergonomics (typed enums, `IDisposable`, exceptions, `System.Numerics`).
+
+| | |
+|---|---|
+| 📦 **C# project** | [`ovphysx/csharp/`](ovphysx/csharp/) |
+| 📖 **Getting started & API guide** | [`ovphysx/csharp/Nvidia.OvPhysx/README.md`](ovphysx/csharp/Nvidia.OvPhysx/README.md) |
+| ▶️ **Runnable samples** (10) | [`ovphysx/csharp/Nvidia.OvPhysx.Samples/`](ovphysx/csharp/Nvidia.OvPhysx.Samples/) |
+| 🎯 **Targets** | .NET 8 · native ovphysx 0.4.13 |
+
+```bash
+cd ovphysx/csharp
+dotnet build          # builds the wrapper, tests, and samples
+dotnet test           # 49 tests (runtime tests need OVPHYSX_LIB → a built ovphysx.dll)
+```
+
+The native `ovphysx.dll`/`libovphysx.so` is **not** bundled — point the `OVPHYSX_LIB` environment
+variable at a built library (from the `pip install ovphysx` wheel's `lib/` folder or the
+[GitHub Releases SDK](https://github.com/NVIDIA-Omniverse/PhysX/releases)).
+
+---
+
+*Everything below is the upstream NVIDIA PhysX repository README, unchanged.*
+
 # NVIDIA PhysX
 
 <details>
