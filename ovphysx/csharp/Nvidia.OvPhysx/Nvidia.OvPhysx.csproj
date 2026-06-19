@@ -15,7 +15,8 @@
     <Authors>Cristian Mori</Authors>
     <Description>Idiomatic .NET 8 wrapper over the native ovphysx (NVIDIA Omni PhysX) C API: USD-based physics simulation, DLPack tensor bindings, contact reporting, and scene queries via in-process P/Invoke.</Description>
     <PackageTags>nvidia;physx;ovphysx;physics;simulation;usd;dlpack;interop</PackageTags>
-    <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Copyright>Copyright (c) 2026 Cristian Mori</Copyright>
     <RepositoryUrl>https://github.com/CristianMori/PhysX</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -25,6 +26,7 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" Condition="Exists('README.md')" />
+    <None Include="..\LICENSE" Pack="true" PackagePath="\" />
     <InternalsVisibleTo Include="Nvidia.OvPhysx.Tests" />
   </ItemGroup>
 
