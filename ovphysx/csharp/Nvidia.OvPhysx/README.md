@@ -1,5 +1,7 @@
 # Nvidia.OvPhysx
 
+[![csharp](https://github.com/CristianMori/PhysX/actions/workflows/csharp.yml/badge.svg)](https://github.com/CristianMori/PhysX/actions/workflows/csharp.yml)
+
 Idiomatic **.NET 8** wrapper over the native **ovphysx** (NVIDIA Omni PhysX) C API — USD-based
 physics simulation, DLPack tensor bindings, contact reporting, and scene queries — via in-process
 `[LibraryImport]` P/Invoke. It mirrors the official Python `ovphysx` package surface with
@@ -9,13 +11,21 @@ idiomatic C# ergonomics (typed enums, `IDisposable`, exceptions, `System.Numeric
 
 ## Installation
 
+This package is **not published to NuGet** — build it from source:
+
 ```bash
-dotnet add package Nvidia.OvPhysx
+git clone https://github.com/CristianMori/PhysX.git
+cd PhysX/ovphysx/csharp
+dotnet build
 ```
 
-The NuGet package contains **only managed code**. You must supply the native `ovphysx` library
-(and its transitive dependencies, e.g. `carb.dll`) yourself — from a pip wheel's `lib/` folder or
-the GitHub Releases SDK.
+Then reference `Nvidia.OvPhysx/Nvidia.OvPhysx.csproj` from your project, or produce a local package
+with `dotnet pack -c Release` and consume it from a local NuGet feed.
+
+The wrapper contains **only managed code** — you must supply the native `ovphysx` library (and its
+transitive dependencies, e.g. `carb.dll`) yourself, from a pip wheel's `lib/` folder
+(`pip download ovphysx==0.4.13 --no-deps` — a `.whl` is a zip you can just extract) or the
+[GitHub Releases SDK](https://github.com/NVIDIA-Omniverse/PhysX/releases).
 
 ### Pointing at the native library
 

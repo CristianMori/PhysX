@@ -32,10 +32,11 @@ try
         case "dofcontrol": DofControl(); break;
         case "report": Report(); break;
         case "lifecycle": Lifecycle(); break;
+        case "batched": Batched(); break;
         default:
             Console.Error.WriteLine(
                 $"Unknown sample '{sample}'. Use: hello | clone | tensors | contacts | query | " +
-                "sweep | overlap | dofcontrol | report | lifecycle");
+                "sweep | overlap | dofcontrol | report | lifecycle | batched");
             return 2;
     }
     return 0;
@@ -259,6 +260,42 @@ void Report()
 
     foreach (ContactPoint p in report.Points.Take(3))
         Console.WriteLine($"    point: pos=({p.Position.X:F2}, {p.Position.Y:F2}, {p.Position.Z:F2}) sep={p.Separation:F4} impulse=({p.Impulse.X:F2}, {p.Impulse.Y:F2}, {p.Impulse.Z:F2})");
+}
+
+void Batched()
+{
+    // The reinforcement-learning pattern: clone one environment into many, then read/write
+    // ALL of them in a single batched tensor call. This runs on CPU; for the GPU pipeline,
+    // construct the instance with DeviceType.Gpu, call physx.WarmupGpu(), and pass a
+    // DlTensor.Cuda(devicePtr, deviceId, shape...) to Read/Write instead of a CPU buffer.
+    Console.WriteLine("=== batched environments (RL-style) ===");
+    using var physx = new PhysX(device: DeviceType.Cpu);
+
+    physx.AddUsd(SampleData.Path("basic_simulation.usda")).Operation.Wait(timeout);
+
+    string[] envs = ["/World/envs/env1", "/World/envs/env2", "/World/envs/env3"];
+    physx.Clone("/World/envs/env0", envs).Wait(timeout);
+    Console.WriteLine($"  cloned env0 -> {envs.Length} more (4 environments total).");
+
+    // One binding over every env's rigid-body table: shape [N, 7] = (px,py,pz, qx,qy,qz,qw).
+    using var poses = physx.CreateTensorBinding(
+        TensorType.RigidBodyPose, "/World/envs/*/table", raiseIfEmpty: true);
+    Console.WriteLine($"  batched pose tensor: count={poses.Count}, shape=[{string.Join(", ", poses.Shape)}]");
+
+    var buffer = new float[poses.ElementCount];
+    for (int step = 0; step < 60; step++)
+    {
+        physx.StepSync(1f / 60f, step / 60f);
+        if (step % 20 == 0)
+        {
+            poses.Read(buffer);
+            int stride = (int)poses.Shape[1];
+            Console.Write($"  step {step,2} | table Y per env:");
+            for (int e = 0; e < poses.Count; e++)
+                Console.Write($"  env{e}={buffer[e * stride + 1]:F3}");
+            Console.WriteLine();
+        }
+    }
 }
 
 void Lifecycle()

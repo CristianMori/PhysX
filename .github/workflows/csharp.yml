@@ -1,0 +1,45 @@
+# CI for the Nvidia.OvPhysx C# / .NET wrapper (ovphysx/csharp/).
+# Builds and runs the managed test suite. Runtime tests that need the native
+# ovphysx library are skipped automatically (no OVPHYSX_LIB on CI runners).
+name: csharp
+
+on:
+  push:
+    paths:
+      - 'ovphysx/csharp/**'
+      - '.github/workflows/csharp.yml'
+  pull_request:
+    paths:
+      - 'ovphysx/csharp/**'
+      - '.github/workflows/csharp.yml'
+
+jobs:
+  build-test:
+    name: build & test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    defaults:
+      run:
+        working-directory: ovphysx/csharp
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test (managed tier; runtime tests skip without OVPHYSX_LIB)
+        run: dotnet test --configuration Release --no-build --verbosity normal
+
+      - name: Pack (verify NuGet packaging)
+        run: dotnet pack Nvidia.OvPhysx/Nvidia.OvPhysx.csproj --configuration Release --no-build
