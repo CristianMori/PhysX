@@ -18,6 +18,7 @@ public sealed class ContactBinding : IDisposable
     private string[]? _sensorPaths;
     private string[][]? _filterPaths;
 
+    /// <summary>Wraps a native contact-binding handle with its sensor/filter counts and detailed-read capacity.</summary>
     internal ContactBinding(PhysX physx, ulong handle, int sensorCount, int filterCount, uint maxContactDataCount)
     {
         _physx = physx;
@@ -171,6 +172,7 @@ public sealed class ContactBinding : IDisposable
         }
     }
 
+    /// <summary>Throws if a caller buffer length doesn't match the expected detailed-read size.</summary>
     private static void Require(long actual, long expected, string name)
     {
         if (actual != expected)
@@ -185,6 +187,7 @@ public sealed class ContactBinding : IDisposable
         return Introspection.GetStrings(_physx.Handle, _handle, &NativeMethods.ovphysx_contact_binding_get_sensor_paths, "contact_binding_get_sensor_paths", (uint)Math.Max(0, SensorCount));
     }
 
+    /// <summary>Fetches filter prim paths and reshapes the flat list into <c>[sensor][filter]</c>.</summary>
     private unsafe string[][] GetFilterPaths()
     {
         EnsureValid();
@@ -231,6 +234,7 @@ public sealed class ContactBinding : IDisposable
 
     ~ContactBinding() => Destroy();
 
+    /// <summary>Throws <see cref="ObjectDisposedException"/> if the binding has been destroyed.</summary>
     private void EnsureValid()
     {
         if (_handle == 0)

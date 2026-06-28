@@ -29,6 +29,7 @@ public sealed class DlTensor
     /// <summary>Total element count (product of <see cref="Shape"/>).</summary>
     public long ElementCount { get; }
 
+    /// <summary>Shared constructor; computes <see cref="ElementCount"/> and validates the shape.</summary>
     private DlTensor(long[] shape, bool isGpu, int deviceId, float[]? cpuData, nint devicePtr)
     {
         Shape = shape;

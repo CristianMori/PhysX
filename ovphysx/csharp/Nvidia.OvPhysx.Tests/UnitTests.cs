@@ -10,6 +10,7 @@ namespace Nvidia.OvPhysx.Tests;
 /// <summary>Pure managed-side tests that do not touch the native library.</summary>
 public class DlTensorTests
 {
+    /// <summary>A CPU tensor exposes the right element count, shape, and device flag.</summary>
     [Fact]
     public void Cpu_ComputesElementCount()
     {
@@ -19,18 +20,21 @@ public class DlTensorTests
         Assert.Equal(new long[] { 4, 3 }, t.Shape);
     }
 
+    /// <summary>A CPU tensor whose data length disagrees with its shape is rejected.</summary>
     [Fact]
     public void Cpu_RejectsShapeMismatch()
     {
         Assert.Throws<ArgumentException>(() => DlTensor.Cpu(new float[10], 4, 3));
     }
 
+    /// <summary>A GPU tensor with a null device pointer is rejected.</summary>
     [Fact]
     public void Cuda_RequiresNonNullPointer()
     {
         Assert.Throws<ArgumentException>(() => DlTensor.Cuda(nint.Zero, 0, 4, 3));
     }
 
+    /// <summary>A GPU tensor reports its device id, element count, and null CPU data.</summary>
     [Fact]
     public void Cuda_BuildsGpuView()
     {
@@ -44,6 +48,7 @@ public class DlTensorTests
 
 public class NativeStringTests
 {
+    /// <summary>A native string arg round-trips UTF-8 content and byte length.</summary>
     [Fact]
     public void NativeStringArg_RoundTripsUtf8()
     {
@@ -52,6 +57,7 @@ public class NativeStringTests
         Assert.Equal((nuint)System.Text.Encoding.UTF8.GetByteCount("/World/robot_é"), arg.Value.length);
     }
 
+    /// <summary>An empty native string arg marshals as a null pointer.</summary>
     [Fact]
     public void NativeStringArg_EmptyIsNullPointer()
     {
@@ -63,6 +69,7 @@ public class NativeStringTests
 
 public class ConfigTests
 {
+    /// <summary>Only non-null config fields produce native entries.</summary>
     [Fact]
     public void BuildsOnlyNonNullEntries()
     {
@@ -75,6 +82,7 @@ public class ConfigTests
         Assert.Equal(2u, entries.Count);
     }
 
+    /// <summary>An all-default config produces zero native entries.</summary>
     [Fact]
     public void EmptyConfigProducesNoEntries()
     {
@@ -82,6 +90,7 @@ public class ConfigTests
         Assert.Equal(0u, entries.Count);
     }
 
+    /// <summary>A null config produces zero native entries.</summary>
     [Fact]
     public void NullConfigProducesNoEntries()
     {
@@ -89,6 +98,7 @@ public class ConfigTests
         Assert.Equal(0u, entries.Count);
     }
 
+    /// <summary>A Carbonite override that collides with a typed field is rejected.</summary>
     [Fact]
     public void CarboniteOverrideConflictThrows()
     {
@@ -100,6 +110,7 @@ public class ConfigTests
         Assert.Throws<ArgumentException>(() => new NativeConfigEntries(config));
     }
 
+    /// <summary>Distinct Carbonite overrides each produce a native entry.</summary>
     [Fact]
     public void CarboniteOverridesAreCounted()
     {
@@ -118,6 +129,7 @@ public class ConfigTests
 
 public class ExceptionTests
 {
+    /// <summary>The exception message includes the context, native message, and status.</summary>
     [Fact]
     public void MessageIncludesContextAndStatus()
     {
@@ -128,6 +140,7 @@ public class ExceptionTests
         Assert.Contains("NotFound", ex.Message);
     }
 
+    /// <summary>The exception message falls back to the status when no native message is present.</summary>
     [Fact]
     public void FallsBackToStatusWhenNoMessage()
     {

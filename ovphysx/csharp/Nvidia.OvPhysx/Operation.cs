@@ -19,6 +19,7 @@ public readonly struct Operation
     /// <summary>The native operation index used for waiting.</summary>
     public ulong Index { get; }
 
+    /// <summary>Associates an operation index with the instance that can wait on it.</summary>
     internal Operation(PhysX physx, ulong index)
     {
         _physx = physx;

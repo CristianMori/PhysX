@@ -44,6 +44,7 @@ public static class NativeLibraryResolver
         NativeLibrary.SetDllImportResolver(typeof(NativeLibraryResolver).Assembly, Resolve);
     }
 
+    /// <summary>The <see cref="DllImportResolver"/>: locates the native library, honouring the discovery order above.</summary>
     private static nint Resolve(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
     {
         if (libraryName != LibraryName)
@@ -74,6 +75,7 @@ public static class NativeLibraryResolver
         return nint.Zero;
     }
 
+    /// <summary>Yields candidate library paths next to the managed assembly (a <c>lib/</c> subdir and the base dir).</summary>
     private static IEnumerable<string> BundledCandidates()
     {
         string baseDir = AppContext.BaseDirectory;
@@ -84,11 +86,13 @@ public static class NativeLibraryResolver
         }
     }
 
+    /// <summary>Returns the platform-specific native library file name(s).</summary>
     private static string[] PlatformLibNames() =>
         RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
             ? ["ovphysx.dll"]
             : ["libovphysx.so"];
 
+    /// <summary>Adds the native library's sibling dependency directories to the loader search path (Windows).</summary>
     private static void AddDependencyDirectories()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -120,6 +124,7 @@ public static class NativeLibraryResolver
         }
     }
 
+    /// <summary>Best-effort: adds <paramref name="dir"/> to both the DLL search path and the process PATH.</summary>
     private static void TryAddDllDirectory(string dir)
     {
         try
@@ -143,6 +148,7 @@ public static class NativeLibraryResolver
         }
     }
 
+    /// <summary>Win32 <c>AddDllDirectory</c> — adds a directory to the process DLL search path.</summary>
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern nint AddDllDirectory(string newDirectory);
 }

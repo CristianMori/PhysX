@@ -14,6 +14,7 @@ namespace Nvidia.OvPhysx.Tests;
 /// </summary>
 public class LayoutTests
 {
+    /// <summary>Verifies each interop struct's marshalled size matches the C ABI (x64).</summary>
     [Theory]
     [InlineData(typeof(ovphysx_string_t), 16)]
     [InlineData(typeof(ovphysx_result_t), 4)]
@@ -38,6 +39,7 @@ public class LayoutTests
         Assert.Equal(expectedSize, Marshal.SizeOf(type));
     }
 
+    /// <summary>Verifies the tagged-union config entry's key/value field offsets.</summary>
     [Fact]
     public void ConfigEntryUnionOffsetsMatchC()
     {
@@ -49,6 +51,7 @@ public class LayoutTests
         Assert.Equal(24, (int)Marshal.OffsetOf<ovphysx_config_entry_t>(nameof(ovphysx_config_entry_t.int32_value)));
     }
 
+    /// <summary>Verifies the scene-query geometry descriptor union members overlap at offset 8.</summary>
     [Fact]
     public void GeometryDescUnionOverlapsCorrectly()
     {

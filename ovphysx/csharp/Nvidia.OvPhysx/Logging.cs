@@ -15,6 +15,7 @@ public static class Logging
     /// <summary>Managed log callback signature.</summary>
     public delegate void LogHandler(LogLevel level, string message);
 
+    /// <summary>Unmanaged signature of the native log callback (level, message pointer, user data).</summary>
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void NativeLogDelegate(uint level, nint message, nint userData);
 
@@ -80,6 +81,7 @@ public static class Logging
         NativeMethods.ovphysx_log_emit_test_messages();
     }
 
+    /// <summary>Unregisters the native callback and clears the GC root (caller holds the lock).</summary>
     private static void UnregisterCallbackCore()
     {
         if (_nativeDelegate is null)
@@ -96,6 +98,7 @@ public static class Logging
         }
     }
 
+    /// <summary>Native-side entry point: decodes the message and forwards it to the managed handler.</summary>
     private static void OnNativeLog(uint level, nint message, nint userData)
     {
         LogHandler? handler = _handler;

@@ -52,6 +52,7 @@ catch (OvPhysxException ex)
     return 1;
 }
 
+// Create an instance, load a USD scene, and run a single step.
 void HelloWorld()
 {
     Console.WriteLine("=== hello world ===");
@@ -65,6 +66,7 @@ void HelloWorld()
     Console.WriteLine("  Step completed. Stage id: " + physx.GetStageId());
 }
 
+// Clone one environment into several and step them together.
 void Clone()
 {
     Console.WriteLine("=== clone ===");
@@ -81,6 +83,7 @@ void Clone()
     Console.WriteLine("  10 steps completed with clones.");
 }
 
+// Drive an articulation via DOF velocity targets and read link poses back.
 void Tensors()
 {
     Console.WriteLine("=== tensor bindings ===");
@@ -123,6 +126,7 @@ void Tensors()
     }
 }
 
+// Read net contact forces and the contact force matrix for a falling box.
 void Contacts()
 {
     Console.WriteLine("=== contact binding ===");
@@ -151,6 +155,7 @@ void Contacts()
             Console.WriteLine($"  [{s}][{f}] = ({matrix[s, f].X:F3}, {matrix[s, f].Y:F3}, {matrix[s, f].Z:F3})");
 }
 
+// Cast a ray downward through the scene and print the hits.
 void Query()
 {
     Console.WriteLine("=== scene query: raycast ===");
@@ -170,6 +175,7 @@ void Query()
         Console.WriteLine($"    dist={h.Distance:F3} pos=({h.Position.X:F2}, {h.Position.Y:F2}, {h.Position.Z:F2}) normal=({h.Normal.X:F2}, {h.Normal.Y:F2}, {h.Normal.Z:F2})");
 }
 
+// Sweep a sphere along a direction and print the hits.
 void Sweep()
 {
     Console.WriteLine("=== scene query: sweep (sphere) ===");
@@ -189,6 +195,7 @@ void Sweep()
         Console.WriteLine($"    dist={h.Distance:F3} pos=({h.Position.X:F2}, {h.Position.Y:F2}, {h.Position.Z:F2})");
 }
 
+// Test which objects overlap a box volume.
 void Overlap()
 {
     Console.WriteLine("=== scene query: overlap (box) ===");
@@ -210,6 +217,7 @@ void Overlap()
         Console.WriteLine($"    collision={h.Collision} rigidBody={h.RigidBody}");
 }
 
+// Inspect articulation metadata/names and apply full, indexed, and masked DOF writes.
 void DofControl()
 {
     Console.WriteLine("=== articulation DOF control (metadata, names, indexed/masked writes) ===");
@@ -243,6 +251,7 @@ void DofControl()
     Console.WriteLine("  wrote DOF targets via mask [1].");
 }
 
+// Collect and summarize the per-step contact report.
 void Report()
 {
     Console.WriteLine("=== contact report ===");
@@ -262,6 +271,7 @@ void Report()
         Console.WriteLine($"    point: pos=({p.Position.X:F2}, {p.Position.Y:F2}, {p.Position.Z:F2}) sep={p.Separation:F4} impulse=({p.Impulse.X:F2}, {p.Impulse.Y:F2}, {p.Impulse.Z:F2})");
 }
 
+// Clone many environments and read all of them through a single batched tensor (RL pattern).
 void Batched()
 {
     // The reinforcement-learning pattern: clone one environment into many, then read/write
@@ -298,6 +308,7 @@ void Batched()
     }
 }
 
+// Demonstrate the logging callback, then remove the USD layer and reset the stage.
 void Lifecycle()
 {
     Console.WriteLine("=== lifecycle: logging callback, reset, remove USD ===");

@@ -94,6 +94,7 @@ public sealed partial class PhysX
         }
     }
 
+    /// <summary>Fills a native geometry descriptor; for SHAPE, allocates a UTF-8 prim path the caller must free.</summary>
     private static unsafe ovphysx_scene_query_geometry_desc_t BuildGeometry(SceneQueryGeometry g, ref nint primPathPtr)
     {
         var desc = new ovphysx_scene_query_geometry_desc_t { type = (int)g.Kind };
@@ -127,6 +128,7 @@ public sealed partial class PhysX
         return desc;
     }
 
+    /// <summary>Copies the native hit buffer into a managed <see cref="SceneQueryHit"/> array.</summary>
     private static unsafe SceneQueryHit[] CopyHits(ovphysx_scene_query_hit_t* hits, uint count)
     {
         if (hits == null || count == 0)

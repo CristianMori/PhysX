@@ -16,6 +16,7 @@ internal static class NativeAvailability
     public static string SkipReason =>
         "Native ovphysx library not available. Set OVPHYSX_LIB to a built ovphysx.dll/libovphysx.so to run runtime tests.";
 
+    /// <summary>Attempts to load the native library once; returns false if it cannot be loaded.</summary>
     private static bool Probe()
     {
         try
@@ -34,6 +35,7 @@ internal static class NativeAvailability
 /// <summary>A <see cref="FactAttribute"/> that auto-skips when the native library is unavailable.</summary>
 public sealed class RuntimeFactAttribute : FactAttribute
 {
+    /// <summary>Sets <see cref="FactAttribute.Skip"/> when the native library cannot be loaded.</summary>
     public RuntimeFactAttribute()
     {
         if (!NativeAvailability.Available)

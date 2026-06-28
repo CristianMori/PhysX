@@ -23,6 +23,7 @@ public sealed class TensorBinding : IDisposable
     private string[]? _bodyNames;
     private string[]? _jointNames;
 
+    /// <summary>Wraps a native binding handle and precomputes its element count from the spec shape.</summary>
     internal TensorBinding(PhysX physx, ulong handle, TensorType tensorType, long[] shape)
     {
         _physx = physx;
@@ -208,18 +209,23 @@ public sealed class TensorBinding : IDisposable
         return new ArticulationMetadata(m.dof_count, m.body_count, m.joint_count, m.fixed_tendon_count, m.spatial_tendon_count, m.is_fixed_base != 0);
     }
 
+    /// <summary>Fetches the resolved prim paths in tensor-row order.</summary>
     private unsafe string[] GetPrimPaths()
         => GetStrings(&NativeMethods.ovphysx_tensor_binding_get_prim_paths, "tensor_binding_get_prim_paths", (uint)Math.Max(0, Count));
 
+    /// <summary>Fetches the articulation DOF names.</summary>
     private unsafe string[] GetDofNames()
         => GetStrings(&NativeMethods.ovphysx_articulation_get_dof_names, "articulation_get_dof_names", (uint)Math.Max(0, Metadata.DofCount));
 
+    /// <summary>Fetches the articulation link/body names.</summary>
     private unsafe string[] GetBodyNames()
         => GetStrings(&NativeMethods.ovphysx_articulation_get_body_names, "articulation_get_body_names", (uint)Math.Max(0, Metadata.BodyCount));
 
+    /// <summary>Fetches the articulation joint names.</summary>
     private unsafe string[] GetJointNames()
         => GetStrings(&NativeMethods.ovphysx_articulation_get_joint_names, "articulation_get_joint_names", (uint)Math.Max(0, Metadata.JointCount));
 
+    /// <summary>Validity-guarded wrapper around the shared size-then-fill string reader.</summary>
     private unsafe string[] GetStrings(
         delegate*<ulong, ulong, ovphysx_string_t*, uint, uint*, ovphysx_result_t> fn, string ctx, uint capacityHint)
     {
@@ -227,6 +233,7 @@ public sealed class TensorBinding : IDisposable
         return Introspection.GetStrings(_physx.Handle, _handle, fn, ctx, capacityHint);
     }
 
+    /// <summary>Throws if a user tensor's element count doesn't match this binding's.</summary>
     private void ValidateElementCount(long provided, string op)
     {
         if (provided != ElementCount)
@@ -253,6 +260,7 @@ public sealed class TensorBinding : IDisposable
 
     ~TensorBinding() => Destroy();
 
+    /// <summary>Throws <see cref="ObjectDisposedException"/> if the binding has been destroyed.</summary>
     private void EnsureValid()
     {
         if (_handle == 0)

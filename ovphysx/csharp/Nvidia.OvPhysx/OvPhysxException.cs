@@ -18,6 +18,7 @@ public class OvPhysxException : Exception
     /// <summary>The operation context (caller-supplied label), if any.</summary>
     public string? Context { get; }
 
+    /// <summary>Creates an exception from a status code, an operation context, and the native error message.</summary>
     public OvPhysxException(ApiStatus status, string? context, string? nativeMessage)
         : base(BuildMessage(status, context, nativeMessage))
     {
@@ -25,6 +26,7 @@ public class OvPhysxException : Exception
         Context = context;
     }
 
+    /// <summary>Composes the exception message from the status, context, and native message.</summary>
     private static string BuildMessage(ApiStatus status, string? context, string? nativeMessage)
     {
         string prefix = string.IsNullOrEmpty(context) ? "ovphysx" : $"ovphysx {context}";
@@ -56,6 +58,7 @@ public class OvPhysxException : Exception
 /// </summary>
 public sealed class OvPhysxTimeoutException : OvPhysxException
 {
+    /// <summary>Creates a timeout exception for the given operation context and native message.</summary>
     public OvPhysxTimeoutException(string? context, string? nativeMessage)
         : base(ApiStatus.Timeout, context, nativeMessage)
     {

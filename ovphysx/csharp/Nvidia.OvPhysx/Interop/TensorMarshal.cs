@@ -6,6 +6,7 @@ namespace Nvidia.OvPhysx.Interop;
 /// <summary>Builds non-owning native <see cref="DLTensor"/> views over already-pinned memory.</summary>
 internal static unsafe class TensorMarshal
 {
+    /// <summary>Builds a non-owning <see cref="DLTensor"/> of the given dtype over pinned data and shape pointers.</summary>
     public static DLTensor Make(void* data, DLDataType dtype, bool gpu, int deviceId, long* shape, int ndim) => new()
     {
         data = data,
@@ -21,6 +22,7 @@ internal static unsafe class TensorMarshal
         byte_offset = 0,
     };
 
+    /// <summary>Builds a non-owning float32 <see cref="DLTensor"/> over pinned data and shape pointers.</summary>
     public static DLTensor MakeFloat(void* data, bool gpu, int deviceId, long* shape, int ndim)
         => Make(data, DLDataType.Float32, gpu, deviceId, shape, ndim);
 

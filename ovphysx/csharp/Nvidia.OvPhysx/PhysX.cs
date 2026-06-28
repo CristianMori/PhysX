@@ -205,6 +205,7 @@ public sealed partial class PhysX : IDisposable
         }
     }
 
+    /// <summary>Converts a wait timeout to nanoseconds: null =&gt; infinite, &lt;= zero =&gt; poll.</summary>
     private static ulong ToNanos(TimeSpan? timeout)
     {
         if (timeout is null)
@@ -342,6 +343,7 @@ public sealed partial class PhysX : IDisposable
 
     ~PhysX() => Release();
 
+    /// <summary>Throws <see cref="ObjectDisposedException"/> if the instance has been released.</summary>
     private void EnsureValid()
     {
         if (_handle == 0)

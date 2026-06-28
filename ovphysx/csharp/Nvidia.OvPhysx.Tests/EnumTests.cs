@@ -9,6 +9,7 @@ namespace Nvidia.OvPhysx.Tests;
 /// <summary>Verifies public enum values match the integer constants in <c>ovphysx_types.h</c>.</summary>
 public class EnumTests
 {
+    /// <summary>Verifies <see cref="ApiStatus"/> integer values match the C header.</summary>
     [Fact]
     public void ApiStatusValues()
     {
@@ -18,6 +19,7 @@ public class EnumTests
         Assert.Equal(8, (int)ApiStatus.GpuNotAvailable);
     }
 
+    /// <summary>Verifies <see cref="DeviceType"/> integer values match the C header.</summary>
     [Fact]
     public void DeviceTypeValues()
     {
@@ -26,6 +28,7 @@ public class EnumTests
         Assert.Equal(2, (int)DeviceType.Cpu);
     }
 
+    /// <summary>Verifies <see cref="LogLevel"/> integer values match the C header.</summary>
     [Fact]
     public void LogLevelValues()
     {
@@ -34,6 +37,7 @@ public class EnumTests
         Assert.Equal(4u, (uint)LogLevel.None);
     }
 
+    /// <summary>Verifies <see cref="PhysXType"/> integer values match the C header (note the jump to 31).</summary>
     [Fact]
     public void PhysXTypeValues()
     {
@@ -42,6 +46,7 @@ public class EnumTests
         Assert.Equal(31, (int)PhysXType.Physics); // non-contiguous jump in the C enum
     }
 
+    /// <summary>Verifies representative <see cref="TensorType"/> values match the C header.</summary>
     [Fact]
     public void TensorTypeValues()
     {
@@ -52,6 +57,7 @@ public class EnumTests
         Assert.Equal(112, (int)TensorType.ArticulationRestOffset);
     }
 
+    /// <summary>Verifies scene-query mode/geometry enum values match the C header.</summary>
     [Fact]
     public void SceneQueryEnumValues()
     {
@@ -61,6 +67,7 @@ public class EnumTests
         Assert.Equal(2, (int)SceneQueryGeometryType.Shape);
     }
 
+    /// <summary>Verifies typed-config key enum values match the C header.</summary>
     [Fact]
     public void ConfigKeyValues()
     {

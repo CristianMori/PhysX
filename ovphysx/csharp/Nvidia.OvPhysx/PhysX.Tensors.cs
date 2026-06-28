@@ -50,6 +50,7 @@ public sealed partial class PhysX
         return CreateBinding(&desc, tensorType, raiseIfEmpty);
     }
 
+    /// <summary>Creates the native binding, queries its spec/shape, and wraps it in a <see cref="TensorBinding"/>.</summary>
     private unsafe TensorBinding CreateBinding(ovphysx_tensor_binding_desc_t* desc, TensorType type, bool raiseIfEmpty)
     {
         ulong binding;

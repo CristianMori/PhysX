@@ -32,6 +32,7 @@ internal sealed unsafe class NativeConfigEntries : IDisposable
     public ovphysx_config_entry_t* Entries { get; }
     public uint Count { get; }
 
+    /// <summary>Builds and pins the native config-entry array from the non-null fields of <paramref name="config"/>.</summary>
     public NativeConfigEntries(PhysXConfig? config)
     {
         List<ovphysx_config_entry_t> list = [];
@@ -82,6 +83,7 @@ internal sealed unsafe class NativeConfigEntries : IDisposable
         }
     }
 
+    /// <summary>Builds a boolean config entry.</summary>
     private static ovphysx_config_entry_t Bool(ConfigBool key, bool value) => new()
     {
         key_type = ovphysx_config_key_type_t.OVPHYSX_CONFIG_KEY_TYPE_BOOL,
@@ -89,6 +91,7 @@ internal sealed unsafe class NativeConfigEntries : IDisposable
         bool_value = (byte)(value ? 1 : 0),
     };
 
+    /// <summary>Builds an int32 config entry.</summary>
     private static ovphysx_config_entry_t Int32(ConfigInt32 key, int value) => new()
     {
         key_type = ovphysx_config_key_type_t.OVPHYSX_CONFIG_KEY_TYPE_INT32,
@@ -96,6 +99,7 @@ internal sealed unsafe class NativeConfigEntries : IDisposable
         int32_value = value,
     };
 
+    /// <summary>Builds a string config entry, retaining the pinned UTF-8 buffer for the call's lifetime.</summary>
     private ovphysx_config_entry_t StringEntry(ConfigString key, string value)
     {
         var arg = new NativeStringArg(value);
@@ -108,6 +112,7 @@ internal sealed unsafe class NativeConfigEntries : IDisposable
         };
     }
 
+    /// <summary>Builds a Carbonite escape-hatch entry (arbitrary setting path + stringified value).</summary>
     private ovphysx_config_entry_t Carbonite(string key, object value)
     {
         var keyArg = new NativeStringArg(key);
@@ -122,6 +127,7 @@ internal sealed unsafe class NativeConfigEntries : IDisposable
         };
     }
 
+    /// <summary>Formats a Carbonite override value as the string the native API expects (invariant culture).</summary>
     private static string ToCarboniteString(object value) => value switch
     {
         bool b => b ? "true" : "false",
@@ -131,6 +137,7 @@ internal sealed unsafe class NativeConfigEntries : IDisposable
         _ => value.ToString() ?? string.Empty,
     };
 
+    /// <summary>Frees the pinned entry array and all retained string buffers.</summary>
     public void Dispose()
     {
         if (_arrayHandle.IsAllocated)

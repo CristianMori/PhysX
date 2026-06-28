@@ -36,6 +36,7 @@ internal readonly struct NativeStringArg : IDisposable
     /// <summary>The native struct to pass by value to the C API.</summary>
     public readonly ovphysx_string_t Value;
 
+    /// <summary>Encodes <paramref name="value"/> as pinned UTF-8 and exposes it as an <see cref="ovphysx_string_t"/>.</summary>
     public NativeStringArg(string? value)
     {
         byte[] bytes = Encoding.UTF8.GetBytes(value ?? string.Empty);
@@ -47,6 +48,7 @@ internal readonly struct NativeStringArg : IDisposable
         };
     }
 
+    /// <summary>Releases the pinned UTF-8 buffer.</summary>
     public void Dispose()
     {
         if (_handle.IsAllocated)
@@ -67,6 +69,7 @@ internal sealed unsafe class NativeStringArray : IDisposable
     public ovphysx_string_t* Ptr { get; }
     public uint Count { get; }
 
+    /// <summary>Pins each string and a contiguous array of their <see cref="ovphysx_string_t"/> structs.</summary>
     public NativeStringArray(IReadOnlyList<string> values)
     {
         Count = (uint)values.Count;
@@ -89,6 +92,7 @@ internal sealed unsafe class NativeStringArray : IDisposable
         }
     }
 
+    /// <summary>Releases the pinned struct array and every pinned string buffer.</summary>
     public void Dispose()
     {
         if (_arrayHandle.IsAllocated)
@@ -111,6 +115,7 @@ internal sealed unsafe class NativeStringBuffer : IDisposable
     public ovphysx_string_t* Ptr { get; }
     public uint Capacity { get; }
 
+    /// <summary>Allocates and pins a writable buffer of <paramref name="capacity"/> string slots.</summary>
     public NativeStringBuffer(uint capacity)
     {
         Capacity = capacity;
@@ -119,6 +124,7 @@ internal sealed unsafe class NativeStringBuffer : IDisposable
         Ptr = (ovphysx_string_t*)_handle.AddrOfPinnedObject();
     }
 
+    /// <summary>Decodes the first <paramref name="count"/> filled slots into managed strings.</summary>
     public string[] Decode(uint count)
     {
         var result = new string[count];
@@ -127,6 +133,7 @@ internal sealed unsafe class NativeStringBuffer : IDisposable
         return result;
     }
 
+    /// <summary>Releases the pinned buffer.</summary>
     public void Dispose()
     {
         if (_handle.IsAllocated)

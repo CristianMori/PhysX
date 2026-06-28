@@ -12,6 +12,7 @@ namespace Nvidia.OvPhysx.Tests;
 /// </summary>
 public class RuntimeTests
 {
+    /// <summary>The native version query returns a non-null string.</summary>
     [RuntimeFact]
     public void GetVersion_ReturnsString()
     {
@@ -19,6 +20,7 @@ public class RuntimeTests
         Assert.NotNull(version);
     }
 
+    /// <summary>A CPU instance can be created, reports a valid handle, and releases cleanly.</summary>
     [RuntimeFact]
     public void CreateAndRelease_Cpu()
     {
@@ -29,6 +31,7 @@ public class RuntimeTests
         Assert.False(physx.IsValid);
     }
 
+    /// <summary>Add a USD scene, wait for the load, then step and wait — the hello-world path.</summary>
     [RuntimeFact]
     public void HelloWorld_AddUsdStepWait()
     {
@@ -43,6 +46,7 @@ public class RuntimeTests
         step.Wait(TimeSpan.FromSeconds(10));
     }
 
+    /// <summary>Running N steps in a single synchronous call succeeds.</summary>
     [RuntimeFact]
     public void StepNSync_RunsMultipleSteps()
     {
@@ -53,6 +57,7 @@ public class RuntimeTests
         physx.StepNSync(10, 1.0f / 60.0f, 0.0f);
     }
 
+    /// <summary>A process-global int32 config value round-trips through set/get.</summary>
     [RuntimeFact]
     public void GlobalConfig_RoundTripsInt32()
     {
@@ -61,6 +66,7 @@ public class RuntimeTests
         Assert.Equal(4, physx.GetConfigInt32(ConfigInt32.NumThreads));
     }
 
+    /// <summary>An articulation binding exposes metadata, name lists, and reads DOF state.</summary>
     [RuntimeFact]
     public void TensorBinding_ReadsArticulationStateAndNames()
     {
@@ -86,6 +92,7 @@ public class RuntimeTests
         Assert.Equal(dofPos.ElementCount, positions.Length);
     }
 
+    /// <summary>Full and indexed tensor writes are accepted by the native API.</summary>
     [RuntimeFact]
     public void TensorBinding_RoundTripsWriteThenRead()
     {
@@ -105,6 +112,7 @@ public class RuntimeTests
         Assert.True(targets.ElementCount > 0);
     }
 
+    /// <summary>A contact binding resolves paths and reports an upward net force for a resting box.</summary>
     [RuntimeFact]
     public void ContactBinding_ReadsNetForcesAndPaths()
     {
@@ -129,6 +137,7 @@ public class RuntimeTests
         Assert.True(net[0].Z > 0f, "Resting box should report an upward normal force.");
     }
 
+    /// <summary>A downward raycast through the scene returns at least one hit.</summary>
     [RuntimeFact]
     public void SceneQuery_RaycastHitsGround()
     {
@@ -152,6 +161,7 @@ internal static class TestData
 {
     private static readonly Lazy<string?> _dir = new(Locate);
 
+    /// <summary>Resolves a file name to its absolute path inside the test-data directory.</summary>
     public static string Path(string fileName)
     {
         string? dir = _dir.Value
@@ -159,6 +169,7 @@ internal static class TestData
         return System.IO.Path.Combine(dir, fileName);
     }
 
+    /// <summary>Walks up from the test bin directory to find the ovphysx test-data directory.</summary>
     private static string? Locate()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);

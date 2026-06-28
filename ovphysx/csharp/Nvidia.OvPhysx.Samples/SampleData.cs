@@ -8,6 +8,7 @@ internal static class SampleData
 {
     private static readonly Lazy<string?> Dir = new(Locate);
 
+    /// <summary>Resolves a file name to its absolute path inside the test-data directory.</summary>
     public static string Path(string fileName)
     {
         string? dir = Dir.Value
@@ -16,6 +17,7 @@ internal static class SampleData
         return System.IO.Path.Combine(dir, fileName);
     }
 
+    /// <summary>Walks up from the app base directory to find the ovphysx test-data directory.</summary>
     private static string? Locate()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);

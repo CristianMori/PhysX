@@ -18,6 +18,7 @@ public sealed class SceneQueryGeometry
     internal Quaternion Rotation { get; private init; }
     internal string? PrimPath { get; private init; }
 
+    /// <summary>Private constructor; use the <see cref="Sphere"/>/<see cref="Box"/>/<see cref="Shape"/> factories.</summary>
     private SceneQueryGeometry() { }
 
     /// <summary>A sphere defined by radius and world-space center.</summary>
